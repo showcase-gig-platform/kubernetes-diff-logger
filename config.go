@@ -2,7 +2,14 @@ package main
 
 // Config represents the configuration options for kubernetes-diff-logger
 type Config struct {
-	Differs []DifferConfig `yaml:"differs"`
+	Differs    []DifferConfig    `yaml:"differs"`
+	GroupKinds []GroupKindConfig `yaml:"groupKinds"`
+}
+
+type GroupKindConfig struct {
+	Group      string `yaml:"group"`
+	Kind       string `yaml:"kind"`
+	NameFilter string `yaml:"nameFilter"`
 }
 
 // DifferConfig represents the configuration options for a single Diffing process
