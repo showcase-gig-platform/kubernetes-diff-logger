@@ -3,10 +3,9 @@ package wrapper
 import (
 	"encoding/json"
 	"fmt"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"log"
-
 	v1meta "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/klog/v2"
 )
 
 type Unstructured struct {
@@ -28,12 +27,12 @@ func WrapUnstructured(i interface{}) (KubernetesObject, error) {
 func (d *Unstructured) GetMetadata() v1meta.ObjectMeta {
 	jmeta, err := json.Marshal(d.d.Object["metadata"])
 	if err != nil {
-		log.Panicln(err)
+		klog.Errorf("failed to parse metadata: %v", err)
 		return v1meta.ObjectMeta{}
 	}
 	var meta v1meta.ObjectMeta
 	if err := json.Unmarshal(jmeta, &meta); err != nil {
-		log.Println(err)
+		klog.Errorf("failed to convert metadata to meta.ObjectMeta: %v", err)
 		return v1meta.ObjectMeta{}
 	}
 	return meta

@@ -3,9 +3,8 @@ package differ
 import (
 	"encoding/json"
 	"fmt"
+	"k8s.io/klog/v2"
 	"time"
-
-	"github.com/apex/log"
 )
 
 // Output abstracts a straightforward way to write
@@ -85,7 +84,7 @@ func (f *output) write(name string, namespace string, verb string, objectType st
 		})
 
 		if err != nil {
-			log.Errorf("Failed to convert to json")
+			klog.Errorf("Failed to convert to json: %v", err)
 			return
 		}
 

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"io/ioutil"
-	"log"
 	"sync"
 	"time"
 
@@ -17,6 +16,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog/v2"
 
 	"github.com/grafana/kubernetes-diff-logger/pkg/differ"
 	"github.com/grafana/kubernetes-diff-logger/pkg/signals"
@@ -50,12 +50,12 @@ func main() {
 	// build k8s client
 	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
-		log.Fatalf("Error building kubeconfig: %s", err.Error())
+		klog.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
 	client, err := dynamic.NewForConfig(config)
 	if err != nil {
-		log.Fatalf("kubernetes.NewForConfig failed: %v", err)
+		klog.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
 
 	// build shared informer
@@ -72,7 +72,7 @@ func main() {
 	cfg := DefaultConfig()
 	err = loadConfig(configFile, &cfg)
 	if err != nil {
-		log.Fatalf("loadConfig failed: %v", err)
+		klog.Fatalf("loadConfig failed: %v", err)
 	}
 
 	// build differs
@@ -83,14 +83,13 @@ func main() {
 			Kind:  gk.Kind,
 		})
 		if err != nil {
-			// todo: エラーログで出す
-			log.Printf("failed to find GroupVersionResouces: %v", err.Error())
+			klog.Errorf("failed to find GroupVersionResouces: %v", err.Error())
 			continue
 		}
 
 		informer := informerFactory.ForResource(gvk).Informer()
 		if err != nil {
-			log.Fatalf("informerForName failed: %v", err)
+			klog.Fatalf("informerForName failed: %v", err)
 		}
 
 		output := differ.NewOutput(differ.JSON, logAdded, logDeleted)
@@ -101,7 +100,7 @@ func main() {
 			defer wg.Done()
 
 			if err := d.Run(stopCh); err != nil {
-				log.Fatalf("Error running differ %v", err)
+				klog.Fatalf("Error running differ %v", err)
 			}
 
 		}(d)

@@ -2,10 +2,9 @@ package differ
 
 import (
 	"fmt"
-	"log"
-
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 
 	"github.com/go-test/deep"
 	"github.com/grafana/kubernetes-diff-logger/pkg/wrapper"
@@ -92,7 +91,7 @@ func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
 	o, err := d.wrap(i)
 
 	if err != nil {
-		log.Fatalf("Failed to wrap interface %v", err)
+		klog.Fatalf("Failed to wrap interface %v", err)
 	}
 
 	return o
