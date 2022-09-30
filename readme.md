@@ -35,11 +35,18 @@ Usage of ./kubernetes-diff-logger:
 ## Config File
 
 ```yaml
-differs:
-- nameFilter: "*"
-  type: "deployment"
-- nameFilter: "*"
-  type: "statefulset"
-- nameFilter: "*"
-  type: "daemonset"
+groupKinds:
+  - group: "apps"
+    kind: "deployment"
+    nameFilter: "*"
+  - group: "apps"
+    kind: "statefulset"
+    nameFilter: "*"
+  - group: "apps"
+    kind: "daemonset"
+    nameFilter: "*"
+  - group: "batch"
+    kind: "cronjob"
+    nameFilter: "*"
+
 ```

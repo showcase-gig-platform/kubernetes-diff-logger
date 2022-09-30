@@ -5,12 +5,10 @@ metadata:
   namespace: default
 data:
   config.yml: |
-    differs:
-    - nameFilter: "*"
-      type: "deployment"
-    - nameFilter: "*"
-      type: "statefulset"
-    - nameFilter: "*"
-      type: "daemonset"
-    - nameFilter: "*"
-      type: "cronjob"
+    groupKinds:
+      - group: "apps"
+        kind: "deployment"
+        nameFilter: "*"
+      - group: "batch"
+        kind: "cronjob"
+        nameFilter: "test"

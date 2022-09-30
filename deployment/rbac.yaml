@@ -4,13 +4,9 @@ metadata:
   name: kube-diff-logger
 rules:
 - apiGroups:
-  - apps
-  - batch
+  - "*"
   resources:
-  - daemonsets
-  - deployments
-  - statefulsets
-  - cronjobs
+  - "*"
   verbs:
   - list
   - watch
