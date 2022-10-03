@@ -1,9 +1,11 @@
 package differ
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"k8s.io/klog/v2"
+	"strings"
 	"time"
 )
 
@@ -69,18 +71,22 @@ func (f *output) WriteUpdated(name string, namespace string, objectType string, 
 }
 
 func (f *output) write(name string, namespace string, verb string, objectType string, etc []string) {
+	diffString := strings.Join(etc, ", ")
 
 	switch f.format {
 	case Text:
-		fmt.Printf("%s %s : %s %s (%s) %v\n", time.Now().UTC().Format(time.RFC3339), verb, namespace, name, objectType, etc)
+		fmt.Printf("%s %s : %s %s (%s) %v\n", time.Now().UTC().Format(time.RFC3339), verb, namespace, name, objectType, diffString)
 	case JSON:
-		bytes, err := json.Marshal(jsonformat{
+		buf := &bytes.Buffer{}
+		enc := json.NewEncoder(buf)
+		enc.SetEscapeHTML(false)
+		err := enc.Encode(jsonformat{
 			Timestamp:  time.Now().UTC().Format(time.RFC3339),
 			Name:       name,
 			Namespace:  namespace,
 			Verb:       verb,
 			ObjectType: objectType,
-			Notes:      fmt.Sprintf("%v", etc),
+			Notes:      diffString,
 		})
 
 		if err != nil {
@@ -88,6 +94,6 @@ func (f *output) write(name string, namespace string, verb string, objectType st
 			return
 		}
 
-		fmt.Println(string(bytes))
+		fmt.Print(buf.String()) // 末尾の改行はjson.Encode()で追加されている
 	}
 }

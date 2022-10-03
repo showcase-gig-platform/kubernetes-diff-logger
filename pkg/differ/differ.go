@@ -6,7 +6,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 
-	"github.com/go-test/deep"
+	"github.com/google/go-cmp/cmp"
 	"github.com/ryanuber/go-glob"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
 )
@@ -65,10 +65,11 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	newObject := d.mustWrap(new)
 
 	if d.matches(oldObject) || d.matches(newObject) {
-		if diff := deep.Equal(oldObject.GetObjectSpec(), newObject.GetObjectSpec()); diff != nil {
+		var r SpecDiffReporter
+		cmp.Diff(oldObject.GetObjectSpec(), newObject.GetObjectSpec(), cmp.Reporter(&r))
+		if len(r.diffs) > 0 {
 			meta := newObject.GetMetadata()
-
-			d.output.WriteUpdated(meta.Name, meta.Namespace, newObject.GetType(), diff)
+			d.output.WriteUpdated(meta.Name, meta.Namespace, newObject.GetType(), r.diffs)
 		}
 	}
 }

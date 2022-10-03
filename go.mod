@@ -3,7 +3,7 @@ module github.com/showcase-gig-platform/kubernetes-diff-logger
 go 1.19
 
 require (
-	github.com/go-test/deep v1.0.7
+	github.com/google/go-cmp v0.5.6
 	github.com/pkg/errors v0.9.1
 	github.com/ryanuber/go-glob v1.0.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -17,7 +17,6 @@ require (
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
