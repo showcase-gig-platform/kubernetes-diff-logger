@@ -1,4 +1,4 @@
-module github.com/grafana/kubernetes-diff-logger
+module github.com/showcase-gig-platform/kubernetes-diff-logger
 
 go 1.19
 

@@ -18,10 +18,10 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
-	"github.com/grafana/kubernetes-diff-logger/pkg/differ"
-	"github.com/grafana/kubernetes-diff-logger/pkg/signals"
-	"github.com/grafana/kubernetes-diff-logger/pkg/wrapper"
 	"github.com/pkg/errors"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/differ"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/signals"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
 )
 
 var (

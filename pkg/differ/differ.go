@@ -7,8 +7,8 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/go-test/deep"
-	"github.com/grafana/kubernetes-diff-logger/pkg/wrapper"
 	"github.com/ryanuber/go-glob"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
 )
 
 // Differ is responsible for subscribing to an informer an filtering out events
