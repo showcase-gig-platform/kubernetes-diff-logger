@@ -2,23 +2,29 @@ package main
 
 // Config represents the configuration options for kubernetes-diff-logger
 type Config struct {
-	GroupKinds []GroupKindConfig `yaml:"groupKinds"`
+	Differs []DifferConfig `yaml:"differs"`
 }
 
-type GroupKindConfig struct {
-	Group      string `yaml:"group"`
-	Kind       string `yaml:"kind"`
-	NameFilter string `yaml:"nameFilter"`
+type DifferConfig struct {
+	GroupKind  GroupKind `yaml:"groupKind"`
+	NameFilter string    `yaml:"nameFilter"`
+}
+
+type GroupKind struct {
+	Group string `yaml:"group"`
+	Kind  string `yaml:"kind"`
 }
 
 // DefaultConfig returns a default deployment watching config
 func DefaultConfig() Config {
 	return Config{
-		GroupKinds: []GroupKindConfig{
-			GroupKindConfig{
+		Differs: []DifferConfig{
+			DifferConfig{
 				NameFilter: "*",
-				Group:      "apps",
-				Kind:       "Deployment",
+				GroupKind: GroupKind{
+					Group: "apps",
+					Kind:  "deployment",
+				},
 			},
 		},
 	}

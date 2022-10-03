@@ -5,10 +5,20 @@ metadata:
   namespace: default
 data:
   config.yml: |
-    groupKinds:
-      - group: "apps"
-        kind: "deployment"
+    differs:
+      - groupKind:
+          group: "apps"
+          kind: "deployment"
         nameFilter: "*"
-      - group: "batch"
-        kind: "cronjob"
-        nameFilter: "test"
+      - groupKind:
+          group: "apps"
+          kind: "statefulset"
+        nameFilter: "*"
+      - groupKind:
+          group: "apps"
+          kind: "daemonset"
+        nameFilter: "*"
+      - groupKind:
+          group: "batch"
+          kind: "cronjob"
+        nameFilter: "*"

@@ -78,10 +78,10 @@ func main() {
 
 	// build differs
 	var wg sync.WaitGroup
-	for _, gk := range cfg.GroupKinds {
+	for _, cfgDiffer := range cfg.Differs {
 		gvk, err := searchResource(config, schema.GroupKind{
-			Group: gk.Group,
-			Kind:  gk.Kind,
+			Group: cfgDiffer.GroupKind.Group,
+			Kind:  cfgDiffer.GroupKind.Kind,
 		})
 		if err != nil {
 			klog.Errorf("failed to find GroupVersionResouces: %v", err.Error())
@@ -94,7 +94,7 @@ func main() {
 		}
 
 		output := differ.NewOutput(differ.JSON, logAdded, logDeleted)
-		d := differ.NewDiffer(gk.NameFilter, wrapper.WrapUnstructured, informer, output)
+		d := differ.NewDiffer(cfgDiffer.NameFilter, wrapper.WrapUnstructured, informer, output)
 
 		wg.Add(1)
 		go func(differ *differ.Differ) {
