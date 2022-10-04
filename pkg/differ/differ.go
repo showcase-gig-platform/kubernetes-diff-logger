@@ -56,7 +56,7 @@ func (d *Differ) added(added interface{}) {
 	if d.matches(object) {
 		meta := object.GetMetadata()
 
-		d.output.WriteAdded(meta.Name, meta.Namespace, object.GetType())
+		d.output.WriteAdded(meta.Name, meta.Namespace, object.GetKind())
 	}
 }
 
@@ -69,7 +69,7 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 		cmp.Diff(oldObject.GetObjectSpec(), newObject.GetObjectSpec(), cmp.Reporter(&r))
 		if len(r.diffs) > 0 {
 			meta := newObject.GetMetadata()
-			d.output.WriteUpdated(meta.Name, meta.Namespace, newObject.GetType(), r.diffs)
+			d.output.WriteUpdated(meta.Name, meta.Namespace, newObject.GetKind(), r.diffs)
 		}
 	}
 }
@@ -80,7 +80,7 @@ func (d *Differ) deleted(deleted interface{}) {
 	if d.matches(object) {
 		meta := object.GetMetadata()
 
-		d.output.WriteDeleted(meta.Name, meta.Namespace, object.GetType())
+		d.output.WriteDeleted(meta.Name, meta.Namespace, object.GetKind())
 	}
 }
 

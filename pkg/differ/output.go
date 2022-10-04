@@ -11,9 +11,9 @@ import (
 
 // Output abstracts a straightforward way to write
 type Output interface {
-	WriteAdded(name string, namespace string, objectType string)
-	WriteDeleted(name string, namespace string, objectType string)
-	WriteUpdated(name string, namespace string, objectType string, diffs []string)
+	WriteAdded(name string, namespace string, objectKind string)
+	WriteDeleted(name string, namespace string, objectKind string)
+	WriteUpdated(name string, namespace string, objectKind string, diffs []string)
 }
 
 // OutputFormat encodes
@@ -35,7 +35,7 @@ type output struct {
 type jsonformat struct {
 	Timestamp  string `json:"timestamp"`
 	Verb       string `json:"verb"`
-	ObjectType string `json:"type"`
+	ObjectKind string `json:"kind"`
 	Notes      string `json:"notes"`
 	Name       string `json:"name"`
 	Namespace  string `json:"namespace"`
@@ -50,32 +50,32 @@ func NewOutput(fmt OutputFormat, logAdded bool, logDeleted bool) Output {
 	}
 }
 
-func (f *output) WriteAdded(name string, namespace string, objectType string) {
+func (f *output) WriteAdded(name string, namespace string, objectKind string) {
 	if !f.logAdded {
 		return
 	}
 
-	f.write(name, namespace, "added", objectType, nil)
+	f.write(name, namespace, "added", objectKind, nil)
 }
 
-func (f *output) WriteDeleted(name string, namespace string, objectType string) {
+func (f *output) WriteDeleted(name string, namespace string, objectKind string) {
 	if !f.logDeleted {
 		return
 	}
 
-	f.write(name, namespace, "deleted", objectType, nil)
+	f.write(name, namespace, "deleted", objectKind, nil)
 }
 
-func (f *output) WriteUpdated(name string, namespace string, objectType string, diffs []string) {
-	f.write(name, namespace, "updated", objectType, diffs)
+func (f *output) WriteUpdated(name string, namespace string, objectKind string, diffs []string) {
+	f.write(name, namespace, "updated", objectKind, diffs)
 }
 
-func (f *output) write(name string, namespace string, verb string, objectType string, etc []string) {
+func (f *output) write(name string, namespace string, verb string, objectKind string, etc []string) {
 	diffString := strings.Join(etc, ", ")
 
 	switch f.format {
 	case Text:
-		fmt.Printf("%s %s : %s %s (%s) %v\n", time.Now().UTC().Format(time.RFC3339), verb, namespace, name, objectType, diffString)
+		fmt.Printf("%s %s : %s %s (%s) %v\n", time.Now().UTC().Format(time.RFC3339), verb, namespace, name, objectKind, diffString)
 	case JSON:
 		buf := &bytes.Buffer{}
 		enc := json.NewEncoder(buf)
@@ -85,7 +85,7 @@ func (f *output) write(name string, namespace string, verb string, objectType st
 			Name:       name,
 			Namespace:  namespace,
 			Verb:       verb,
-			ObjectType: objectType,
+			ObjectKind: objectKind,
 			Notes:      diffString,
 		})
 

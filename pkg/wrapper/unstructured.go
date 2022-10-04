@@ -42,7 +42,7 @@ func (d *Unstructured) GetObjectSpec() interface{} {
 	return d.d.Object["spec"]
 }
 
-func (d *Unstructured) GetType() string {
+func (d *Unstructured) GetKind() string {
 	t := "Unstructured"
 	if k, ok, _ := unstructured.NestedString(d.d.Object, "kind"); ok {
 		t = k
