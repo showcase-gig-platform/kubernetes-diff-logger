@@ -94,7 +94,7 @@ func main() {
 		}
 
 		output := differ.NewOutput(differ.JSON, logAdded, logDeleted)
-		d := differ.NewDiffer(cfgDiffer.NameFilter, wrapper.WrapUnstructured, informer, output)
+		d := differ.NewDiffer(cfgDiffer.NameFilter, wrapper.WrapUnstructured, informer, output, cfg.CommonLabelConfig, cfg.CommonAnnotationConfig)
 
 		wg.Add(1)
 		go func(differ *differ.Differ) {

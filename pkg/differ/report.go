@@ -39,18 +39,22 @@ func (r *SpecDiffReporter) String(sep string) string {
 }
 
 func (r *SpecDiffReporter) MapIndexString() string {
-	ps := []string{"spec"}
+	ps := []string{""}
 	for _, s := range r.path {
 		if mi, ok := s.(cmp.MapIndex); ok {
-			ps = append(ps, fmt.Sprintf(".%v", mi.Key()))
+			val := fmt.Sprintf("%v", mi.Key())
+			if strings.Contains(val, ".") { // labelとかのkeyにドットが入ってると見分けが付かないので囲む
+				val = fmt.Sprintf("[%v]", val)
+			}
+			ps = append(ps, fmt.Sprintf(".%v", val))
 		}
 		if si, ok := s.(cmp.SliceIndex); ok {
 			var i int
 			vx, vy := si.SplitKeys()
 			switch {
-			case vx > 0 && vy == -1:
+			case vx >= 0 && vy == -1:
 				i = vx
-			case vx == -1 && vy > 0:
+			case vx == -1 && vy >= 0:
 				i = vy
 			default:
 				i = vx

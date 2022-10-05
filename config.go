@@ -1,8 +1,12 @@
 package main
 
+import "github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/differ"
+
 // Config represents the configuration options for kubernetes-diff-logger
 type Config struct {
-	Differs []DifferConfig `yaml:"differs"`
+	Differs                []DifferConfig     `yaml:"differs"`
+	CommonLabelConfig      differ.ExtraConfig `yaml:"commonLabelConfig"`
+	CommonAnnotationConfig differ.ExtraConfig `yaml:"commonAnnotationConfig"`
 }
 
 type DifferConfig struct {
@@ -19,13 +23,21 @@ type GroupKind struct {
 func DefaultConfig() Config {
 	return Config{
 		Differs: []DifferConfig{
-			DifferConfig{
+			{
 				NameFilter: "*",
 				GroupKind: GroupKind{
 					Group: "apps",
 					Kind:  "deployment",
 				},
 			},
+		},
+		CommonLabelConfig: differ.ExtraConfig{
+			Enable:     false,
+			IgnoreKeys: []string{},
+		},
+		CommonAnnotationConfig: differ.ExtraConfig{
+			Enable:     false,
+			IgnoreKeys: []string{},
 		},
 	}
 }

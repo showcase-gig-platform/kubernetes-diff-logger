@@ -13,19 +13,28 @@ import (
 
 // Differ is responsible for subscribing to an informer an filtering out events
 type Differ struct {
-	matchGlob string
-	wrap      wrapper.Wrap
-	informer  cache.SharedInformer
-	output    Output
+	matchGlob        string
+	wrap             wrapper.Wrap
+	informer         cache.SharedInformer
+	output           Output
+	labelConfig      ExtraConfig
+	annotationConfig ExtraConfig
+}
+
+type ExtraConfig struct {
+	Enable     bool     `yaml:"enable"`
+	IgnoreKeys []string `yaml:"ignoreKeys"`
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output) *Differ {
+func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output, l, a ExtraConfig) *Differ {
 	d := &Differ{
-		matchGlob: m,
-		wrap:      f,
-		informer:  i,
-		output:    o,
+		matchGlob:        m,
+		wrap:             f,
+		informer:         i,
+		output:           o,
+		labelConfig:      l,
+		annotationConfig: a,
 	}
 
 	return d
@@ -65,8 +74,30 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	newObject := d.mustWrap(new)
 
 	if d.matches(oldObject) || d.matches(newObject) {
+		oldTarget := map[string]interface{}{}
+		newTarget := map[string]interface{}{}
+
+		oldMetadata := map[string]interface{}{}
+		newMetadata := map[string]interface{}{}
+
+		if d.labelConfig.Enable {
+			oldMetadata["labels"] = deleteKeys(oldObject.GetMetadata().Labels, d.labelConfig.IgnoreKeys)
+			newMetadata["labels"] = deleteKeys(newObject.GetMetadata().Labels, d.labelConfig.IgnoreKeys)
+		}
+
+		if d.annotationConfig.Enable {
+			oldMetadata["annotations"] = deleteKeys(oldObject.GetMetadata().Annotations, d.annotationConfig.IgnoreKeys)
+			newMetadata["annotations"] = deleteKeys(newObject.GetMetadata().Annotations, d.annotationConfig.IgnoreKeys)
+		}
+
+		oldTarget["metadata"] = oldMetadata
+		newTarget["metadata"] = newMetadata
+
+		oldTarget["spec"] = oldObject.GetObjectSpec()
+		newTarget["spec"] = newObject.GetObjectSpec()
+
 		var r SpecDiffReporter
-		cmp.Diff(oldObject.GetObjectSpec(), newObject.GetObjectSpec(), cmp.Reporter(&r))
+		cmp.Diff(oldTarget, newTarget, cmp.Reporter(&r))
 		if len(r.diffs) > 0 {
 			meta := newObject.GetMetadata()
 			d.output.WriteUpdated(meta.Name, meta.Namespace, newObject.GetKind(), r.diffs)
@@ -96,4 +127,11 @@ func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
 	}
 
 	return o
+}
+
+func deleteKeys(source map[string]string, target []string) map[string]string {
+	for _, t := range target {
+		delete(source, t)
+	}
+	return source
 }
