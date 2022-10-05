@@ -18,26 +18,3 @@ type GroupKind struct {
 	Group string `yaml:"group"`
 	Kind  string `yaml:"kind"`
 }
-
-// DefaultConfig returns a default deployment watching config
-func DefaultConfig() Config {
-	return Config{
-		Differs: []DifferConfig{
-			{
-				NameFilter: "*",
-				GroupKind: GroupKind{
-					Group: "apps",
-					Kind:  "deployment",
-				},
-			},
-		},
-		CommonLabelConfig: differ.ExtraConfig{
-			Enable:     false,
-			IgnoreKeys: []string{},
-		},
-		CommonAnnotationConfig: differ.ExtraConfig{
-			Enable:     false,
-			IgnoreKeys: []string{},
-		},
-	}
-}

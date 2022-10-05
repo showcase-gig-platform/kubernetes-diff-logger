@@ -70,7 +70,7 @@ func main() {
 	stopCh := signals.SetupSignalHandler()
 
 	// load config
-	cfg := DefaultConfig()
+	var cfg Config
 	err = loadConfig(configFile, &cfg)
 	if err != nil {
 		klog.Fatalf("loadConfig failed: %v", err)
