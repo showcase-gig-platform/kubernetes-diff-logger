@@ -19,7 +19,14 @@ func (r *SpecDiffReporter) PushStep(ps cmp.PathStep) {
 func (r *SpecDiffReporter) Report(rs cmp.Result) {
 	if !rs.Equal() {
 		vx, vy := r.path.Last().Values()
-		r.diffs = append(r.diffs, fmt.Sprintf("%v: %v -> %v", r.MapIndexString(), vx, vy))
+		switch true {
+		case !vx.IsValid() && vy.IsValid():
+			r.diffs = append(r.diffs, fmt.Sprintf("%v: %v (added)", r.MapIndexString(), vy))
+		case vx.IsValid() && !vy.IsValid():
+			r.diffs = append(r.diffs, fmt.Sprintf("%v: %v (deleted)", r.MapIndexString(), vx))
+		default:
+			r.diffs = append(r.diffs, fmt.Sprintf("%v: %v -> %v", r.MapIndexString(), vx, vy))
+		}
 	}
 }
 
@@ -34,9 +41,22 @@ func (r *SpecDiffReporter) String(sep string) string {
 func (r *SpecDiffReporter) MapIndexString() string {
 	ps := []string{"spec"}
 	for _, s := range r.path {
-		if i, ok := s.(cmp.MapIndex); ok {
-			ps = append(ps, fmt.Sprintf("%v", i.Key()))
+		if mi, ok := s.(cmp.MapIndex); ok {
+			ps = append(ps, fmt.Sprintf(".%v", mi.Key()))
+		}
+		if si, ok := s.(cmp.SliceIndex); ok {
+			var i int
+			vx, vy := si.SplitKeys()
+			switch {
+			case vx > 0 && vy == -1:
+				i = vx
+			case vx == -1 && vy > 0:
+				i = vy
+			default:
+				i = vx
+			}
+			ps = append(ps, fmt.Sprintf("[%v]", i))
 		}
 	}
-	return strings.Join(ps, ".")
+	return strings.Join(ps, "")
 }
