@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/ryanuber/go-glob"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/config"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
 )
 
@@ -17,17 +18,12 @@ type Differ struct {
 	wrap             wrapper.Wrap
 	informer         cache.SharedInformer
 	output           Output
-	labelConfig      ExtraConfig
-	annotationConfig ExtraConfig
-}
-
-type ExtraConfig struct {
-	Enable     bool     `yaml:"enable"`
-	IgnoreKeys []string `yaml:"ignoreKeys"`
+	labelConfig      config.ExtraConfig
+	annotationConfig config.ExtraConfig
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output, l, a ExtraConfig) *Differ {
+func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output, l, a config.ExtraConfig) *Differ {
 	d := &Differ{
 		matchGlob:        m,
 		wrap:             f,

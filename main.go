@@ -19,6 +19,7 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/pkg/errors"
+	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/config"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/differ"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/signals"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
@@ -49,12 +50,12 @@ func main() {
 	flag.Parse()
 
 	// build k8s client
-	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
+	kubeClinetConfig, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 	if err != nil {
 		klog.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	client, err := dynamic.NewForConfig(config)
+	client, err := dynamic.NewForConfig(kubeClinetConfig)
 	if err != nil {
 		klog.Fatalf("kubernetes.NewForConfig failed: %v", err)
 	}
@@ -70,7 +71,7 @@ func main() {
 	stopCh := signals.SetupSignalHandler()
 
 	// load config
-	var cfg Config
+	var cfg config.Config
 	err = loadConfig(configFile, &cfg)
 	if err != nil {
 		klog.Fatalf("loadConfig failed: %v", err)
@@ -79,7 +80,7 @@ func main() {
 	// build differs
 	var wg sync.WaitGroup
 	for _, cfgDiffer := range cfg.Differs {
-		gvk, err := searchResource(config, schema.GroupKind{
+		gvk, err := searchResource(kubeClinetConfig, schema.GroupKind{
 			Group: cfgDiffer.GroupKind.Group,
 			Kind:  cfgDiffer.GroupKind.Kind,
 		})
@@ -111,7 +112,7 @@ func main() {
 	wg.Wait()
 }
 
-func loadConfig(filename string, cfg *Config) error {
+func loadConfig(filename string, cfg *config.Config) error {
 	buf, err := os.ReadFile(filename)
 	if err != nil {
 		return errors.Wrap(err, "Error reading config file")
