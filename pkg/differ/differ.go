@@ -92,7 +92,11 @@ func (d *Differ) deleted(deleted interface{}) {
 }
 
 func (d *Differ) matches(o wrapper.KubernetesObject) bool {
-	return glob.Glob(d.matchGlob, o.GetMetadata().Name)
+	matcher := d.matchGlob
+	if matcher == "" {
+		matcher = "*"
+	}
+	return glob.Glob(matcher, o.GetMetadata().Name)
 }
 
 func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
