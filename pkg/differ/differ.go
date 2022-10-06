@@ -72,7 +72,7 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	if d.matches(oldObject) || d.matches(newObject) {
 		oldTarget, newTarget := d.createDiffObject(oldObject, newObject)
 
-		var r SpecDiffReporter
+		var r CmpDiffReporter
 		cmp.Diff(oldTarget, newTarget, cmp.Reporter(&r))
 		if len(r.diffs) > 0 {
 			meta := newObject.GetMetadata()

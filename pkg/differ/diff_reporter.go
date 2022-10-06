@@ -7,16 +7,16 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-type SpecDiffReporter struct {
+type CmpDiffReporter struct {
 	path  cmp.Path
 	diffs []string
 }
 
-func (r *SpecDiffReporter) PushStep(ps cmp.PathStep) {
+func (r *CmpDiffReporter) PushStep(ps cmp.PathStep) {
 	r.path = append(r.path, ps)
 }
 
-func (r *SpecDiffReporter) Report(rs cmp.Result) {
+func (r *CmpDiffReporter) Report(rs cmp.Result) {
 	if !rs.Equal() {
 		vx, vy := r.path.Last().Values()
 		switch true {
@@ -30,15 +30,15 @@ func (r *SpecDiffReporter) Report(rs cmp.Result) {
 	}
 }
 
-func (r *SpecDiffReporter) PopStep() {
+func (r *CmpDiffReporter) PopStep() {
 	r.path = r.path[:len(r.path)-1]
 }
 
-func (r *SpecDiffReporter) String(sep string) string {
+func (r *CmpDiffReporter) String(sep string) string {
 	return strings.Join(r.diffs, sep)
 }
 
-func (r *SpecDiffReporter) MapIndexString() string {
+func (r *CmpDiffReporter) MapIndexString() string {
 	ps := []string{""}
 	for _, s := range r.path {
 		if mi, ok := s.(cmp.MapIndex); ok {
