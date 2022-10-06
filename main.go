@@ -2,11 +2,9 @@ package main
 
 import (
 	"flag"
-	"os"
 	"sync"
 	"time"
 
-	"gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
@@ -18,7 +16,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
-	"github.com/pkg/errors"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/config"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/differ"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/signals"
@@ -72,10 +69,11 @@ func main() {
 
 	// load config
 	var cfg config.Config
-	err = loadConfig(configFile, &cfg)
+	err = config.LoadConfig(configFile, &cfg)
 	if err != nil {
-		klog.Fatalf("loadConfig failed: %v", err)
+		klog.Fatalf("LoadConfig failed: %v", err)
 	}
+	klog.Infof("Loaded config: %+v\n", cfg)
 
 	// build differs
 	var wg sync.WaitGroup
@@ -110,15 +108,6 @@ func main() {
 
 	informerFactory.Start(stopCh)
 	wg.Wait()
-}
-
-func loadConfig(filename string, cfg *config.Config) error {
-	buf, err := os.ReadFile(filename)
-	if err != nil {
-		return errors.Wrap(err, "Error reading config file")
-	}
-
-	return yaml.UnmarshalStrict(buf, &cfg)
 }
 
 func searchResource(c *rest.Config, gk schema.GroupKind) (schema.GroupVersionResource, error) {
