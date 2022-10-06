@@ -49,3 +49,17 @@ func (d *Unstructured) GetKind() string {
 	}
 	return t
 }
+
+func (d *Unstructured) GetRawObject() map[string]interface{} {
+	rawJson, err := json.Marshal(d.d.Object)
+	if err != nil {
+		klog.Errorf("failed to parse raw object: %v", err)
+		return map[string]interface{}{}
+	}
+	var cp map[string]interface{}
+	if err := json.Unmarshal(rawJson, &cp); err != nil {
+		klog.Errorf("failed to convert raw object: %v", err)
+		return map[string]interface{}{}
+	}
+	return cp
+}

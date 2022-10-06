@@ -70,7 +70,8 @@ func (d *Differ) updated(old interface{}, new interface{}) {
 	newObject := d.mustWrap(new)
 
 	if d.matches(oldObject) || d.matches(newObject) {
-		oldTarget, newTarget := d.createDiffObject(oldObject, newObject)
+		oldTarget := d.createDiffObject(oldObject)
+		newTarget := d.createDiffObject(newObject)
 
 		var r CmpDiffReporter
 		cmp.Diff(oldTarget, newTarget, cmp.Reporter(&r))
@@ -109,30 +110,25 @@ func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {
 	return o
 }
 
-func (d *Differ) createDiffObject(oldObject, newObject wrapper.KubernetesObject) (map[string]interface{}, map[string]interface{}) {
-	oldTarget := map[string]interface{}{}
-	newTarget := map[string]interface{}{}
+func (d *Differ) createDiffObject(rawObj wrapper.KubernetesObject) map[string]interface{} {
+	result := rawObj.GetRawObject()
 
-	oldMetadata := map[string]interface{}{}
-	newMetadata := map[string]interface{}{}
+	delete(result, "status")
+	delete(result, "metadata")
+
+	metadata := map[string]interface{}{}
 
 	if d.labelConfig.Enable {
-		oldMetadata["labels"] = deleteKeys(oldObject.GetMetadata().Labels, d.labelConfig.IgnoreKeys)
-		newMetadata["labels"] = deleteKeys(newObject.GetMetadata().Labels, d.labelConfig.IgnoreKeys)
+		metadata["labels"] = deleteKeys(rawObj.GetMetadata().Labels, d.labelConfig.IgnoreKeys)
 	}
 
 	if d.annotationConfig.Enable {
-		oldMetadata["annotations"] = deleteKeys(oldObject.GetMetadata().Annotations, d.annotationConfig.IgnoreKeys)
-		newMetadata["annotations"] = deleteKeys(newObject.GetMetadata().Annotations, d.annotationConfig.IgnoreKeys)
+		metadata["annotations"] = deleteKeys(rawObj.GetMetadata().Annotations, d.annotationConfig.IgnoreKeys)
 	}
 
-	oldTarget["metadata"] = oldMetadata
-	newTarget["metadata"] = newMetadata
+	result["metadata"] = metadata
 
-	oldTarget["spec"] = oldObject.GetObjectSpec()
-	newTarget["spec"] = newObject.GetObjectSpec()
-
-	return oldTarget, newTarget
+	return result
 }
 
 func deleteKeys(source map[string]string, target []string) map[string]string {

@@ -9,6 +9,7 @@ type KubernetesObject interface {
 	GetMetadata() v1.ObjectMeta
 	GetObjectSpec() interface{}
 	GetKind() string
+	GetRawObject() map[string]interface{}
 }
 
 // Wrap accepts an empty interface and returns a KubernetesObject
