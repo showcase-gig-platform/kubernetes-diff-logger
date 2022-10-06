@@ -2,12 +2,11 @@
 
 This simple application is designed to watch Kubernetes objects and log diffs when they occur.  It is designed to log changes to Kubernetes objects in a clean way for storage and processing in [Loki](https://github.com/grafana/loki/).
 
-## Example
+## Example output
 
 ```
-./kubernetes-diff-logger -namespace=default
-{"timestamp":"2019-10-23T16:57:23Z","verb":"updated","type":"deployment","notes":"[Replicas: 1 != 2]", "name":"nginx"}}
-{"timestamp":"2019-10-23T16:57:35Z","verb":"updated","type":"deployment","notes":"[Template.Spec.Containers.slice[0].Image: nginx != nginx:latest]", "name":"nginx"}}
+{"timestamp":"2022-10-06T08:34:30Z","verb":"updated","kind":"Deployment","notes":".spec.replicas: 1 -> 2","name":"podinfo","namespace":"default"}
+{"timestamp":"2022-10-06T08:35:47Z","verb":"updated","kind":"Deployment","notes":".spec.template.spec.containers[0].env[1]: map[name:NEW_ENV_KEY value:newEnvValue] (added)","name":"podinfo","namespace":"default"}
 ```
 
 See [Deployment](./deployment) for example yaml to deploy to Kubernetes.  The example will monitor and log information about changes in all namespaces.
@@ -39,18 +38,31 @@ differs:
   - groupKind:
       group: "apps"
       kind: "deployment"
+    nameFilter: "*want-to-log*"
+  - groupKind:
+      group : ""
+      kind: "configmap"
     nameFilter: "*"
   - groupKind:
-      group: "apps"
-      kind: "statefulset"
+      group: "my.custom.group"
+      kind: "mycustomresource"
     nameFilter: "*"
-  - groupKind:
-      group : "apps"
-      kind: "daemonset"
-    nameFilter: "*"
-  - groupKind:
-      group: "batch"
-      kind: "cronjob"
-    nameFilter: "*"
-
+commonLabelConfig:
+  enable: true
+  ignoreKeys:
+    - untracked-label-key
+commonAnnotationConfig:
+  enable: true
+  ignoreKeys:
+    - untracked-annotation-key
 ```
+
+| Field                             | Type     | Description                                                                       |
+|-----------------------------------|----------|-----------------------------------------------------------------------------------|
+| differs.groupKind.group           | string   | Name of Kubernetes API group that you want to log diff.                           |
+| differs.groupKind.kind            | string   | Name of Kubernetes resource kind that you want to log diff.                       |
+| differs.nameFilter                | string   | Resource name filter by glob format that you want to log diff. (if not set = `*`) |
+| commonLabelConfig.enable          | boolean  | Whether to log metadata.labels diff.                                              |
+| commonLabelConfig.ignoreKeys      | []string | Key of labels that do not log diff.                                               |
+| commonAnnotationConfig.enable     | boolean  | Whether to log metadata.annotations diff.                                         |
+| commonAnnotationConfig.ignoreKeys | []string | Key of annotations that do not log diff.                                          |

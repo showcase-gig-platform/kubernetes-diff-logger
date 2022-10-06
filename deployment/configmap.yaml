@@ -22,3 +22,22 @@ data:
           group: "batch"
           kind: "cronjob"
         nameFilter: "*"
+    commonLabelConfig:
+      enable: true
+      ignoreKeys:
+        - controller-revision-hash
+        - controller-uid
+        - controller.kubernetes.io/hash
+        - pod-template-generation
+        - pod-template-hash
+    commonAnnotationConfig:
+      enable: true
+      ignoreKeys:
+        - deployment.kubernetes.io/desired-replicas
+        - deployment.kubernetes.io/max-replicas
+        - deployment.kubernetes.io/revision
+        - deployment.kubernetes.io/revision-history
+        - deprecated.daemonset.template.generation
+        - endpoints.kubernetes.io/last-change-trigger-time
+        - kubectl.kubernetes.io/last-applied-configuration
+        - kubectl.kubernetes.io/restartedAt

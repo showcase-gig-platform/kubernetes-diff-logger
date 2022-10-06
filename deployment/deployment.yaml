@@ -20,7 +20,7 @@ spec:
         command:
         - /app/app
         - -config=/etc/kube-diff-logger/config.yml
-        image: grafana/kubernetes-diff-logger:latest       
+        image: public.ecr.aws/q1m5p9s1/kubernetes-diff-logger:latest
         resources:
           limits:
             cpu: 100m
