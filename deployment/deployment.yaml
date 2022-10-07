@@ -17,8 +17,7 @@ spec:
     spec:
       containers:
       - name: kube-diff-logger
-        command:
-        - /app/app
+        args:
         - -config=/etc/kube-diff-logger/config.yml
         image: public.ecr.aws/q1m5p9s1/kubernetes-diff-logger:latest
         resources:

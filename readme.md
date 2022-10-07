@@ -38,15 +38,14 @@ differs:
   - groupKind:
       group: "apps"
       kind: "deployment"
-    nameFilter: "*want-to-log*"
+    matchRegex: "want-to-log"
+    ignoreRegex: "want-to-(ignore|exclude)"
   - groupKind:
       group : ""
       kind: "configmap"
-    nameFilter: "*"
   - groupKind:
       group: "my.custom.group"
       kind: "mycustomresource"
-    nameFilter: "*"
 commonLabelConfig:
   enable: true
   ignoreKeys:
@@ -57,12 +56,13 @@ commonAnnotationConfig:
     - untracked-annotation-key
 ```
 
-| Field                             | Type     | Description                                                                       |
-|-----------------------------------|----------|-----------------------------------------------------------------------------------|
-| differs.groupKind.group           | string   | Name of Kubernetes API group that you want to log diff.                           |
-| differs.groupKind.kind            | string   | Name of Kubernetes resource kind that you want to log diff.                       |
-| differs.nameFilter                | string   | Resource name filter by glob format that you want to log diff. (if not set = `*`) |
-| commonLabelConfig.enable          | boolean  | Whether to log metadata.labels diff.                                              |
-| commonLabelConfig.ignoreKeys      | []string | Key of labels that do not log diff.                                               |
-| commonAnnotationConfig.enable     | boolean  | Whether to log metadata.annotations diff.                                         |
-| commonAnnotationConfig.ignoreKeys | []string | Key of annotations that do not log diff.                                          |
+| Field                             | Type     | Description                                                      |
+|-----------------------------------|----------|------------------------------------------------------------------|
+| differs.groupKind.group           | string   | Name of Kubernetes API group that you want to log diff.          |
+| differs.groupKind.kind            | string   | Name of Kubernetes resource kind that you want to log diff.      |
+| differs.matchRegexp               | string   | Regexp for resource name to log. (If blank, log all)             |
+| differs.ignoreRegexp              | string   | Regexp for resource name to not log. (Priority over matchRegexp) |
+| commonLabelConfig.enable          | boolean  | Whether to log metadata.labels diff.                             |
+| commonLabelConfig.ignoreKeys      | []string | Key of labels that do not log diff. (exact match)                |
+| commonAnnotationConfig.enable     | boolean  | Whether to log metadata.annotations diff.                        |
+| commonAnnotationConfig.ignoreKeys | []string | Key of annotations that do not log diff. (exact match)           |

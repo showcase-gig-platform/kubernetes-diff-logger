@@ -5,32 +5,34 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
+	"regexp"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/ryanuber/go-glob"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/config"
 	"github.com/showcase-gig-platform/kubernetes-diff-logger/pkg/wrapper"
 )
 
 // Differ is responsible for subscribing to an informer an filtering out events
 type Differ struct {
-	matchGlob        string
 	wrap             wrapper.Wrap
 	informer         cache.SharedInformer
 	output           Output
 	labelConfig      config.ExtraConfig
 	annotationConfig config.ExtraConfig
+	matchRegexp      string
+	ignoreRegexp     string
 }
 
 // NewDiffer constructs a Differ
-func NewDiffer(m string, f wrapper.Wrap, i cache.SharedInformer, o Output, l, a config.ExtraConfig) *Differ {
+func NewDiffer(f wrapper.Wrap, i cache.SharedInformer, o Output, l, a config.ExtraConfig, mr, ir string) *Differ {
 	d := &Differ{
-		matchGlob:        m,
 		wrap:             f,
 		informer:         i,
 		output:           o,
 		labelConfig:      l,
 		annotationConfig: a,
+		matchRegexp:      mr,
+		ignoreRegexp:     ir,
 	}
 
 	return d
@@ -93,11 +95,26 @@ func (d *Differ) deleted(deleted interface{}) {
 }
 
 func (d *Differ) matches(o wrapper.KubernetesObject) bool {
-	matcher := d.matchGlob
-	if matcher == "" {
-		matcher = "*"
+	name := o.GetMetadata().Name
+	if d.ignoreRegexp != "" {
+		m, e := regexp.MatchString(d.ignoreRegexp, name)
+		if e != nil {
+			klog.Errorf("Failed to eval regexp : %v\n", e.Error())
+		}
+		if m {
+			return false
+		}
 	}
-	return glob.Glob(matcher, o.GetMetadata().Name)
+	if d.matchRegexp != "" {
+		m, e := regexp.MatchString(d.matchRegexp, name)
+		if e != nil {
+			klog.Errorf("Failed to eval regexp : %v\n", e.Error())
+		}
+		if !m {
+			return false
+		}
+	}
+	return true
 }
 
 func (d *Differ) mustWrap(i interface{}) wrapper.KubernetesObject {

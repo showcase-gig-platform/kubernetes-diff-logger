@@ -35,7 +35,7 @@ var (
 func init() {
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
 	flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
-	flag.DurationVar(&resyncPeriod, "resync", time.Second*30, "Periodic interval in which to force resync objects.")
+	flag.DurationVar(&resyncPeriod, "resync", time.Minute*1, "Periodic interval in which to force resync objects.")
 	flag.StringVar(&namespace, "namespace", "", "Filter updates by namespace.  Leave empty to watch all.")
 	flag.BoolVar(&logAdded, "log-added", false, "Log when deployments are added.")
 	flag.BoolVar(&logDeleted, "log-deleted", false, "Log when deployments are deleted.")
@@ -78,7 +78,7 @@ func main() {
 	// build differs
 	var wg sync.WaitGroup
 	for _, cfgDiffer := range cfg.Differs {
-		gvk, err := searchResource(kubeClinetConfig, schema.GroupKind{
+		gvr, err := searchResource(kubeClinetConfig, schema.GroupKind{
 			Group: cfgDiffer.GroupKind.Group,
 			Kind:  cfgDiffer.GroupKind.Kind,
 		})
@@ -87,13 +87,13 @@ func main() {
 			continue
 		}
 
-		informer := informerFactory.ForResource(gvk).Informer()
+		informer := informerFactory.ForResource(gvr).Informer()
 		if err != nil {
 			klog.Fatalf("informerForName failed: %v", err)
 		}
 
 		output := differ.NewOutput(differ.JSON, logAdded, logDeleted)
-		d := differ.NewDiffer(cfgDiffer.NameFilter, wrapper.WrapUnstructured, informer, output, cfg.CommonLabelConfig, cfg.CommonAnnotationConfig)
+		d := differ.NewDiffer(wrapper.WrapUnstructured, informer, output, cfg.CommonLabelConfig, cfg.CommonAnnotationConfig, cfgDiffer.MatchRegexp, cfgDiffer.IgnoreRegexp)
 
 		wg.Add(1)
 		go func(differ *differ.Differ) {

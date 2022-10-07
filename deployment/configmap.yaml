@@ -9,19 +9,15 @@ data:
       - groupKind:
           group: "apps"
           kind: "deployment"
-        nameFilter: "*"
       - groupKind:
           group: "apps"
           kind: "statefulset"
-        nameFilter: "*"
       - groupKind:
           group: "apps"
           kind: "daemonset"
-        nameFilter: "*"
       - groupKind:
           group: "batch"
           kind: "cronjob"
-        nameFilter: "*"
     commonLabelConfig:
       enable: true
       ignoreKeys:
