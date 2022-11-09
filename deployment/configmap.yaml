@@ -6,18 +6,10 @@ metadata:
 data:
   config.yml: |
     differs:
-      - groupKind:
-          group: "apps"
-          kind: "deployment"
-      - groupKind:
-          group: "apps"
-          kind: "statefulset"
-      - groupKind:
-          group: "apps"
-          kind: "daemonset"
-      - groupKind:
-          group: "batch"
-          kind: "cronjob"
+      - resource: "deployment"
+      - resource: "statefulset"
+      - resource: "daemonset"
+      - resource: "cronjob"
     commonLabelConfig:
       enable: true
       ignoreKeys:

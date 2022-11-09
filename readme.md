@@ -35,17 +35,11 @@ Usage of ./kubernetes-diff-logger:
 
 ```yaml
 differs:
-  - groupKind:
-      group: "apps"
-      kind: "deployment"
+  - resource: "deployment"
     matchRegex: "want-to-log"
     ignoreRegex: "want-to-(ignore|exclude)"
-  - groupKind:
-      group : ""
-      kind: "configmap"
-  - groupKind:
-      group: "my.custom.group"
-      kind: "mycustomresource"
+  - resource: "configmap"
+  - resource: "mycustomresource"
 commonLabelConfig:
   enable: true
   ignoreKeys:
@@ -58,8 +52,7 @@ commonAnnotationConfig:
 
 | Field                             | Type     | Description                                                      |
 |-----------------------------------|----------|------------------------------------------------------------------|
-| differs.groupKind.group           | string   | Name of Kubernetes API group that you want to log diff.          |
-| differs.groupKind.kind            | string   | Name of Kubernetes resource kind that you want to log diff.      |
+| differs.resource                  | string   | Name of Kubernetes resource type that you want to log diff.      |
 | differs.matchRegexp               | string   | Regexp for resource name to log. (If blank, log all)             |
 | differs.ignoreRegexp              | string   | Regexp for resource name to not log. (Priority over matchRegexp) |
 | commonLabelConfig.enable          | boolean  | Whether to log metadata.labels diff.                             |
