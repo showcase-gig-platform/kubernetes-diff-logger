@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
-	memory "k8s.io/client-go/discovery/cached"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/rest"
@@ -75,13 +75,15 @@ func main() {
 	}
 	klog.Infof("Loaded config: %+v\n", cfg)
 
+	rm, err := restMapper(kubeClinetConfig)
+	if err != nil {
+		klog.Fatalf("Failed to get rest mapper: %v", err)
+	}
+
 	// build differs
 	var wg sync.WaitGroup
 	for _, cfgDiffer := range cfg.Differs {
-		gvr, err := searchResource(kubeClinetConfig, schema.GroupKind{
-			Group: cfgDiffer.GroupKind.Group,
-			Kind:  cfgDiffer.GroupKind.Kind,
-		})
+		gvr, err := searchResource(rm, cfgDiffer.Resource)
 		if err != nil {
 			klog.Errorf("failed to find GroupVersionResouces: %v", err.Error())
 			continue
@@ -110,17 +112,29 @@ func main() {
 	wg.Wait()
 }
 
-func searchResource(c *rest.Config, gk schema.GroupKind) (schema.GroupVersionResource, error) {
+func restMapper(c *rest.Config) (meta.RESTMapper, error) {
 	dc, err := discovery.NewDiscoveryClientForConfig(c)
 	if err != nil {
-		return schema.GroupVersionResource{}, err
+		return nil, err
 	}
+	gr, err := restmapper.GetAPIGroupResources(dc)
+	if err != nil {
+		return nil, err
+	}
+	mapper := restmapper.NewDiscoveryRESTMapper(gr)
 
-	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(dc))
-	mapping, err := mapper.RESTMapping(gk, "")
+	return mapper, nil
+}
+
+func searchResource(rm meta.RESTMapper, resource string) (schema.GroupVersionResource, error) {
+	gvr, err := rm.ResourceFor(schema.GroupVersionResource{
+		Group:    "",
+		Version:  "",
+		Resource: resource,
+	})
 
 	if err != nil {
 		return schema.GroupVersionResource{}, err
 	}
-	return mapping.Resource, nil
+	return gvr, nil
 }

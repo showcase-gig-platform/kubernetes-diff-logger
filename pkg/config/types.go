@@ -7,9 +7,9 @@ type Config struct {
 }
 
 type DifferConfig struct {
-	GroupKind    GroupKind `yaml:"groupKind"`
-	MatchRegexp  string    `yaml:"matchRegexp"`
-	IgnoreRegexp string    `yaml:"ignoreRegexp"`
+	Resource     string `yaml:"resource"`
+	MatchRegexp  string `yaml:"matchRegexp"`
+	IgnoreRegexp string `yaml:"ignoreRegexp"`
 }
 
 type GroupKind struct {
