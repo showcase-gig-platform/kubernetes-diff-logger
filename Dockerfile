@@ -23,6 +23,6 @@ FROM gcr.io/distroless/static:nonroot
 WORKDIR /
 USER 65532:65532
 
-COPY --from=build /src/kubernetes-diff-logger .
+COPY --from=builder /src/kubernetes-diff-logger .
 
 ENTRYPOINT ["/kubernetes-diff-logger"]
